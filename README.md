@@ -61,7 +61,7 @@ A Laravel 12 project for importing books from a JSON resource and providing a RE
    DB_PASSWORD=secret
 
    # JSON source URL for importing books
-   BOOK_JSON_URL=https://raw.githubusercontent.com/bvaughn/infinite-list-reflow-examples/refs/heads/master/books.json
+   BOOK_JSON_URL=
    ```
 3. (Optional) Adjust other settings as needed.
 
@@ -104,7 +104,7 @@ GET /api/v1/books
 
 #### Query Parameters
 
-- `search` (string) — filter by title, short description, author name, or category.
+- `search` (string) — filter by title, short description, author name, or author id.
 - `limit` (integer) — number of records to return (all records if not set).
 - `offset` (integer) — number of records to skip (0 if not set).
 
@@ -235,5 +235,5 @@ curl "http://127.0.0.1:8000/api/v1/authors/2/books?limit=10&offset=0"
 
 ---
 
-**Author:** Your Name / Development Team
+**Author:** Valentyn Kotenko
 
