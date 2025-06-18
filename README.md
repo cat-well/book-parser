@@ -75,7 +75,7 @@ A Laravel 12 project for importing books from a JSON resource and providing a RE
    ```
 2. Import books from JSON:
    ```bash
-   php artisan books:import
+   php artisan books:parse
    ```
     - The command will display import progress as a percentage.
     - Books without an ISBN will be skipped, and their titles will be listed at the end.
