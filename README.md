@@ -1,61 +1,239 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Book Parser & API in Laravel 12
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel 12 project for importing books from a JSON resource and providing a REST API for data access.
 
-## About Laravel
+## Table of Contents
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+1. [Requirements](#requirements)
+2. [Installation](#installation)
+3. [Environment Configuration](#environment-configuration)
+4. [Database Migrations & Data Import](#database-migrations--data-import)
+5. [Running the Local Server](#running-the-local-server)
+6. [API Endpoints](#api-endpoints)
+7. [Artisan Command](#artisan-command)
+8. [Examples](#examples)
+9. [Logging & Debugging](#logging--debugging)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Requirements
 
-## Learning Laravel
+- PHP >= 8.1
+- Composer
+- MariaDB / MySQL
+- Git
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Installation
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-user/book-parser.git
+   cd book-parser
+   ```
+2. Install dependencies:
+   ```bash
+   composer install
+   ```
+3. Generate application key:
+   ```bash
+   php artisan key:generate
+   ```
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Environment Configuration
 
-### Premium Partners
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+2. Open `.env` and set the following variables:
+   ```dotenv
+   APP_URL=http://127.0.0.1:8000
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=book_parser
+   DB_USERNAME=root
+   DB_PASSWORD=secret
 
-## Contributing
+   # JSON source URL for importing books
+   BOOK_JSON_URL=https://raw.githubusercontent.com/bvaughn/infinite-list-reflow-examples/refs/heads/master/books.json
+   ```
+3. (Optional) Adjust other settings as needed.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## Database Migrations & Data Import
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. Run database migrations:
+   ```bash
+   php artisan migrate
+   ```
+2. Import books from JSON:
+   ```bash
+   php artisan books:import
+   ```
+    - The command will display import progress as a percentage.
+    - Books without an ISBN will be skipped, and their titles will be listed at the end.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Running the Local Server
 
-## License
+```bash
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+By default, the application will be available at `http://127.0.0.1:8000`.
+
+---
+
+## API Endpoints
+
+All endpoints are prefixed with `/api/v1`.
+
+### 1. List Books
+
+```
+GET /api/v1/books
+```
+
+#### Query Parameters
+
+- `search` (string) — filter by title, short description, author name, or category.
+- `limit` (integer) — number of records to return (all records if not set).
+- `offset` (integer) — number of records to skip (0 if not set).
+
+#### Response
+
+```json
+{
+  "data": [
+    {
+      "title": "...",
+      "short_description": "...",
+      "long_description": "...",
+      "page_count": 416,
+      "thumbnail_url": "...",
+      "published_at": "2009-04-01",
+      "isbn": "1933988673",
+      "status": "PUBLISH",
+      "authors": ["W. Frank Ableson", "Charlie Collins", "Robi Sen"],
+      "categories": ["Open Source","Mobile"]
+    }
+  ],
+  "meta": {
+    "limit": 5,
+    "offset": 0,
+    "count": 1
+  }
+}
+```
+
+### 2. List Authors
+
+```
+GET /api/v1/authors
+```
+
+#### Query Parameters
+
+- `search` (string) — filter by author name.
+- `limit`, `offset` — same as above.
+
+#### Response
+
+```json
+{
+  "data": [
+    {
+      "name": "Charlie Collins",
+      "books_count": 10
+    }
+  ],
+  "meta": {
+    "limit": 5,
+    "offset": 0,
+    "count": 1
+  }
+}
+```
+
+### 3. List Books by Author
+
+```
+GET /api/v1/authors/{author_id}/books
+```
+
+#### Path Parameter
+
+- `author_id` (integer) — the ID of the author.
+
+#### Query Parameters
+
+- `limit`, `offset` — same as above.
+
+#### Response
+
+```json
+{
+  "data": [  ],
+  "meta": { "limit": 5, "offset": 0, "count": 3 }
+}
+```
+
+---
+
+## Artisan Command
+
+```
+books:import
+```
+
+#### Description
+
+- Fetches JSON from `BOOK_JSON_URL`.
+- Creates or updates records in the `books` table by ISBN.
+- Synchronizes relationships with authors and categories.
+- Skips books without an ISBN and lists them at the end.
+- Displays import progress in percentage.
+
+---
+
+## Examples
+
+```bash
+# Import data
+php artisan books:import
+
+# Run server
+php artisan serve
+
+# Get first 5 books starting at offset 0
+curl "http://127.0.0.1:8000/api/v1/books?limit=5&offset=0"
+
+# Search books by keyword
+curl "http://127.0.0.1:8000/api/v1/books?search=Android"
+
+# Get first 3 authors
+curl "http://127.0.0.1:8000/api/v1/authors?limit=3"
+
+# Get books for author ID 2
+curl "http://127.0.0.1:8000/api/v1/authors/2/books?limit=10&offset=0"
+```
+
+---
+
+## Logging & Debugging
+
+- Application logs are stored in `storage/logs/laravel.log`.
+- To display detailed errors, set `APP_DEBUG=true` in your `.env`.
+
+---
+
+**Author:** Your Name / Development Team
+
